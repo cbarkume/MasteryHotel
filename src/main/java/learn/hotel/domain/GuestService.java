@@ -19,6 +19,21 @@ public class GuestService {
         return repository.findAll();
     }
 
+    public Guest findByEmail (String email) {
+        List<Guest> all = findAll();
+
+        if (email == null) {
+            return null;
+        }
+
+        for (Guest g : all) {
+            if (g.getEmail().equalsIgnoreCase(email)) {
+                return g;
+            }
+        }
+        return null;
+    }
+
     public Guest findByName (String firstName, String lastName) {
         List<Guest> all = findAll();
 

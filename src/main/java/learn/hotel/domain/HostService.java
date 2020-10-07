@@ -17,4 +17,32 @@ public class HostService {
     public List<Host> findAll() {
         return repository.findAll();
     }
+
+    public Host findByEmail(String email) {
+        if (email == null) {
+            return null;
+        }
+
+        List<Host> all = findAll();
+        for (Host h : all) {
+            if (h.getEmail().equalsIgnoreCase(email)) {
+                return h;
+            }
+        }
+        return null;
+    }
+
+    public Host findByLastName(String lastName) {
+        if (lastName == null) {
+            return null;
+        }
+
+        List<Host> all = findAll();
+        for (Host h : all) {
+            if (h.getLastName().equalsIgnoreCase(lastName)) {
+                return h;
+            }
+        }
+        return null;
+    }
 }
