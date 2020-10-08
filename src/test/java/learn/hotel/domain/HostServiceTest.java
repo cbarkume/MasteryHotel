@@ -19,7 +19,7 @@ class HostServiceTest {
 
     @Test
     void shouldNotFindByInvalidEmail() {
-        Host host = service.findByEmail("FAKEEMAIL");
+        Host host = service.findByEmail("FAKE EMAIL");
         assertNull(host);
     }
 
