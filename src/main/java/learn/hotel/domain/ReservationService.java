@@ -30,7 +30,7 @@ public class ReservationService {
     }
 
     public Reservation findByHostEmailGuestEmail(String hostEmail, String guestEmail) {
-        if (hostEmail != null && guestEmail != null) {
+        if (hostEmail == null || guestEmail == null) {
             return null;
         }
         Host host = hostService.findByEmail(hostEmail);
@@ -45,7 +45,7 @@ public class ReservationService {
     }
 
     public Reservation findByHostLastNameGuestFullName(String hostLastName, String guestFirstName, String guestLastName) {
-        if (hostLastName != null && guestFirstName != null && guestLastName != null) {
+        if (hostLastName == null || guestFirstName == null || guestLastName == null) {
             return null;
         }
         Guest guest = guestService.findByName(guestFirstName, guestLastName);
@@ -93,7 +93,8 @@ public class ReservationService {
     }
 
     public Result<Reservation> edit(Reservation reservation) throws DataException {
-        Result<Reservation> result = validate(reservation, true);
+        Result<Reservation> result = new Result<>();
+        result = validateNulls(reservation, result, true);
         if (!result.isSuccess()) {
             return result;
         }
@@ -107,14 +108,19 @@ public class ReservationService {
                     (reservation.getHost().getEmail(), reservation.getGuest().getEmail()).getEndDate());
         }
 
+        result = validate(reservation, true);
+        if (!result.isSuccess()) {
+            return result;
+        }
+
         if (!reservationRepo.edit(reservation)) {
             result.addErrorMessage("Unable to edit.");
         }
         return result;
     }
 
-    public Result<Guest> cancelByHostLastNameGuestFullName(String hostLastName, String guestFirstName, String guestLastName) throws DataException {
-        Result<Guest> result = new Result<>();
+    public Result<Reservation> cancelByHostLastNameGuestFullName(String hostLastName, String guestFirstName, String guestLastName) throws DataException {
+        Result<Reservation> result = new Result<>();
 
         Reservation reservation = findByHostLastNameGuestFullName(hostLastName, guestFirstName, guestLastName);
 
@@ -130,8 +136,8 @@ public class ReservationService {
         return result;
     }
 
-    public Result<Guest> cancelByHostEmailGuestEmail(String hostEmail, String guestEmail) throws DataException {
-        Result<Guest> result = new Result<>();
+    public Result<Reservation> cancelByHostEmailGuestEmail(String hostEmail, String guestEmail) throws DataException {
+        Result<Reservation> result = new Result<>();
 
         Reservation reservation = findByHostEmailGuestEmail(hostEmail, guestEmail);
 
@@ -154,7 +160,7 @@ public class ReservationService {
             return result;
         }
 
-        result = validateDates(reservation, result, isEdit);
+        result = validateDates(reservation, result);
         if (!result.isSuccess()){
             return result;
         }
@@ -191,27 +197,7 @@ public class ReservationService {
         return result;
     }
 
-    private Result<Reservation> validateDates(Reservation reservation, Result<Reservation> result, boolean isEdit) {
-        if (isEdit) {
-            if (reservation.getStartDate() == null && reservation.getEndDate() == null) {
-                return result;
-            }
-            Reservation reservationToEdit = findByHostEmailGuestEmail(reservation.getHost().getEmail(), reservation.getGuest().getEmail());
-            if (reservation.getStartDate() == null) {
-                if (reservationToEdit.getStartDate().isAfter(reservation.getEndDate())
-                    || reservationToEdit.getStartDate().isEqual(reservation.getEndDate())) {
-                    result.addErrorMessage("Start Date cannot be after or on the same day as End Date.");
-                }
-                return result;
-            }
-            if (reservation.getEndDate() == null) {
-                if (reservationToEdit.getEndDate().isBefore(reservation.getStartDate())) {
-                    result.addErrorMessage("End Date cannot be before Start Date.");
-                }
-                return result;
-            }
-        }
-
+    private Result<Reservation> validateDates(Reservation reservation, Result<Reservation> result) {
         if (reservation.getStartDate().isAfter(reservation.getEndDate())
                 || reservation.getStartDate().isEqual(reservation.getEndDate())) {
             result.addErrorMessage("Start Date cannot be after or on the same day as End Date.");

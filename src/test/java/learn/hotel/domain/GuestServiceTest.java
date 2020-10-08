@@ -64,7 +64,7 @@ class GuestServiceTest {
         Result<Guest> guest = service.add(new Guest(2, "Testo", "Testy", "testotesty@test.com", "(555) 5555555", State.LA));
         assertEquals(0, guest.getErrorMessages().size());
 
-        guest = service.add(new Guest(-100, " ", " ", "@.", "(555) 5555555", State.LA));
+        guest = service.add(new Guest(-100, "B", "_", "@.", "(555) 5555555", State.LA));
         assertEquals(0, guest.getErrorMessages().size());
     }
     @Test

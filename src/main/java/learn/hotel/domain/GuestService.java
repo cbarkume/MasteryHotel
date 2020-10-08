@@ -74,7 +74,8 @@ public class GuestService {
     }
 
     public Result<Guest> edit(Guest guest) throws DataException {
-        Result<Guest> result = validate(guest, true);
+        Result<Guest> result = new Result<>();
+        result = validateNulls(guest, result, true);
         if (!result.isSuccess()) {
             return result;
         }
@@ -87,6 +88,11 @@ public class GuestService {
         }
         if (guest.getState() == null) {
             guest.setState(findByName(guest.getFirstName(), guest.getLastName()).getState());
+        }
+
+        result = validate(guest, true);
+        if (!result.isSuccess()) {
+            return result;
         }
 
         if (!repository.edit(guest)) {
@@ -142,12 +148,12 @@ public class GuestService {
             return result;
         }
 
-        result = validatePhone(guest, result, isEdit);
+        result = validatePhone(guest, result);
         if (!result.isSuccess()){
             return result;
         }
 
-        result = validateEmail(guest, result, isEdit);
+        result = validateEmail(guest, result);
         if (!result.isSuccess()){
             return result;
         }
@@ -162,23 +168,23 @@ public class GuestService {
             return result;
         }
 
-        if (guest.getFirstName() == null) {
+        if (guest.getFirstName() == null || guest.getFirstName().isBlank() || guest.getFirstName().isEmpty()) {
             result.addErrorMessage("First name cannot be null.");
         }
 
-        if (guest.getLastName() == null) {
+        if (guest.getLastName() == null || guest.getLastName().isBlank() || guest.getLastName().isEmpty()) {
             result.addErrorMessage("Last name cannot be null.");
         }
 
-        if (isEdit) {
+        if(isEdit) {
             return result;
         }
 
-        if (guest.getEmail() == null) {
+        if (guest.getEmail() == null || guest.getEmail().isBlank() || guest.getEmail().isEmpty()) {
             result.addErrorMessage("Email cannot be null.");
         }
 
-        if (guest.getPhone() == null) {
+        if (guest.getPhone() == null || guest.getPhone().isBlank() || guest.getPhone().isEmpty()) {
             result.addErrorMessage("Phone Number cannot be null.");
         }
 
@@ -188,13 +194,7 @@ public class GuestService {
         return result;
     }
 
-    private Result<Guest> validatePhone(Guest guest, Result<Guest> result, boolean isEdit) {
-        if (isEdit) {
-            if (guest.getPhone() == null || guest.getPhone().isEmpty() || guest.getPhone().isBlank()) {
-                return result;
-            }
-        }
-
+    private Result<Guest> validatePhone(Guest guest, Result<Guest> result) {
         if (guest.getPhone().length() != 13
                 || guest.getPhone().charAt(0) != '('
                 || guest.getPhone().charAt(4) != ')'
@@ -222,12 +222,7 @@ public class GuestService {
         return result;
     }
 
-    private Result<Guest> validateEmail(Guest guest, Result<Guest> result, boolean isEdit) {
-        if (isEdit) {
-            if (guest.getEmail() == null || guest.getEmail().isEmpty() || guest.getEmail().isBlank()) {
-                return result;
-            }
-        }
+    private Result<Guest> validateEmail(Guest guest, Result<Guest> result) {
 
         if ((!guest.getEmail().contains("@")) || (!guest.getEmail().contains("."))) {
             result.addErrorMessage("Invalid email. A proper email format is 'example@yahoo.com'.");
