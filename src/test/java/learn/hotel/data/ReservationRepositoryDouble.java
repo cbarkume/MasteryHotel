@@ -49,11 +49,11 @@ public class ReservationRepositoryDouble implements ReservationRepository {
     }
 
     @Override
-    public Reservation cancelByHostIdGuestId(String hostId, int guestId) throws DataException {
+    public boolean cancelByHostIdGuestId(String hostId, int guestId) throws DataException {
         if (reservation.getGuest().getGuestId() == guestId
                 && reservation.getHost().getId().equals(hostId)) {
-            return reservation;
+            return true;
         }
-        return null;
+        return false;
     }
 }

@@ -1,5 +1,6 @@
 package learn.hotel.domain;
 
+import learn.hotel.data.DataException;
 import learn.hotel.data.GuestRepository;
 import learn.hotel.data.HostRepository;
 import learn.hotel.data.ReservationRepository;
@@ -8,6 +9,7 @@ import learn.hotel.models.Host;
 import learn.hotel.models.Reservation;
 
 import java.util.List;
+import java.util.zip.DataFormatException;
 
 public class ReservationService {
 
@@ -79,6 +81,62 @@ public class ReservationService {
         return reservations;
     }
 
+    public Result<Reservation> add(Reservation reservation) throws DataException {
+        Result<Reservation> result = validate(reservation, false);
+        if (!result.isSuccess()) {
+            return result;
+        }
+
+        result.setPayload(reservationRepo.add(reservation));
+
+        return result;
+    }
+
+    public Result<Reservation> edit(Reservation reservation) throws DataException {
+        Result<Reservation> result = validate(reservation, true);
+        if (!result.isSuccess()) {
+            return result;
+        }
+
+        if (!reservationRepo.edit(reservation)) {
+            result.addErrorMessage("Unable to edit.");
+        }
+        return result;
+    }
+
+    public Result<Guest> cancelByHostLastNameGuestFullName(String hostLastName, String guestFirstName, String guestLastName) throws DataException {
+        Result<Guest> result = new Result<>();
+
+        Reservation reservation = findByHostLastNameGuestFullName(hostLastName, guestFirstName, guestLastName);
+
+        if (reservation == null) {
+            result.addErrorMessage("Name not found. Check your spelling.");
+            return result;
+        }
+
+
+        if (!reservationRepo.cancelByHostIdGuestId(reservation.getHost().getId(), reservation.getGuest().getGuestId())) {
+            result.addErrorMessage("Error: Already entered guest has invalid ID.");
+        }
+        return result;
+    }
+
+    public Result<Guest> cancelByHostEmailGuestEmail(String hostEmail, String guestEmail) throws DataException {
+        Result<Guest> result = new Result<>();
+
+        Reservation reservation = findByHostEmailGuestEmail(hostEmail, guestEmail);
+
+        if (reservation == null) {
+            result.addErrorMessage("Email not found. A proper email format is 'example@yahoo.com'.");
+            return result;
+        }
+
+
+        if (!reservationRepo.cancelByHostIdGuestId(reservation.getHost().getId(), reservation.getGuest().getGuestId())) {
+            result.addErrorMessage("Error: Already entered guest has invalid ID.");
+        }
+        return result;
+    }
 
     public Result<Reservation> validate(Reservation reservation, boolean canBeDuplicate) {
         Result<Reservation> result = new Result<>();

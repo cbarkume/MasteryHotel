@@ -103,9 +103,9 @@ public class ReservationFileRepository implements ReservationRepository {
     }
 
     @Override
-    public Reservation cancelByHostIdGuestId(String hostId, int guestId) throws DataException {
+    public boolean cancelByHostIdGuestId(String hostId, int guestId) throws DataException {
         if (hostId ==  null || guestId <= 0) {
-            return null;
+            return false;
         }
 
         Reservation reservation = findByHostIdGuestId(hostId, guestId);
@@ -115,10 +115,10 @@ public class ReservationFileRepository implements ReservationRepository {
             if (reservation.getId() == all.get(i).getId()) {
                 all.remove(i);
                 writeAll(all);
-                return reservation;
+                return true;
             }
         }
-        return null;
+        return false;
     }
 
     private void writeAll(List<Reservation> reservations) throws DataException {

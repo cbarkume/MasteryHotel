@@ -36,11 +36,24 @@ public class GuestService {
 
     public Guest findByName (String firstName, String lastName) {
         List<Guest> all = findAll();
+        List<Guest> matches = new ArrayList<>();
 
-        if (lastName == null || firstName == null) {
+        if (lastName == null) {
             return null;
         }
 
+        for (Guest g : all) {
+            if (g.getLastName().equalsIgnoreCase(lastName)) {
+                matches.add(g);
+            }
+        }
+        if (matches.size() == 1 && (firstName.isBlank() || firstName.isEmpty())) {
+            return matches.get(0);
+        }
+
+        if (firstName == null) {
+            return null;
+        }
         for (Guest g : all) {
             if (g.getLastName().equalsIgnoreCase(lastName) && g.getFirstName().equalsIgnoreCase(firstName)) {
                 return g;
@@ -84,6 +97,23 @@ public class GuestService {
 
         if (guest == null) {
             result.addErrorMessage("Name not found. Check your spelling.");
+            return result;
+        }
+
+
+        if (!repository.deleteById(guest.getGuestId())) {
+            result.addErrorMessage("Error: Already entered guest has invalid ID.");
+        }
+        return result;
+    }
+
+    public Result<Guest> deleteByEmail(String email) throws DataException {
+        Result<Guest> result = new Result<>();
+
+        Guest guest = findByEmail(email);
+
+        if (guest == null) {
+            result.addErrorMessage("Email not found. A proper email format is 'example@yahoo.com'.");
             return result;
         }
 

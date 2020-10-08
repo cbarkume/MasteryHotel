@@ -141,14 +141,14 @@ class ReservationFileRepositoryTest {
 
     @Test
     void shouldCancel() throws DataException {
-        Reservation reservationResult = reservationRepo.cancelByHostIdGuestId(reservation.getHost().getId(), reservation.getGuest().getGuestId());
-        assertEquals(1, reservationResult.getId());
+        boolean success = reservationRepo.cancelByHostIdGuestId(reservation.getHost().getId(), reservation.getGuest().getGuestId());
+        assertTrue(success);
     }
 
     @Test
     void shouldNotCancelNullReservation() throws DataException {
-        Reservation reservationResult = reservationRepo.cancelByHostIdGuestId(null, -15);
-        assertNull(reservationResult);
+        boolean success = reservationRepo.cancelByHostIdGuestId(null, -15);
+        assertFalse(success);
         assertEquals(16, reservationRepo.findByHostId(testHost.getId()).size());
     }
 }
