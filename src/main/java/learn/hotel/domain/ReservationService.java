@@ -98,6 +98,15 @@ public class ReservationService {
             return result;
         }
 
+        if (reservation.getStartDate() == null) {
+            reservation.setStartDate(findByHostEmailGuestEmail
+                    (reservation.getHost().getEmail(), reservation.getGuest().getEmail()).getStartDate());
+        }
+        if (reservation.getEndDate() == null) {
+            reservation.setEndDate(findByHostEmailGuestEmail
+                    (reservation.getHost().getEmail(), reservation.getGuest().getEmail()).getEndDate());
+        }
+
         if (!reservationRepo.edit(reservation)) {
             result.addErrorMessage("Unable to edit.");
         }
@@ -138,25 +147,23 @@ public class ReservationService {
         return result;
     }
 
-    public Result<Reservation> validate(Reservation reservation, boolean canBeDuplicate) {
+    private Result<Reservation> validate(Reservation reservation, boolean isEdit) {
         Result<Reservation> result = new Result<>();
-        result = validateNulls(reservation, result);
+        result = validateNulls(reservation, result, isEdit);
         if (!result.isSuccess()){
             return result;
         }
 
-        result = validateFields(reservation, result);
+        result = validateDates(reservation, result, isEdit);
         if (!result.isSuccess()){
             return result;
         }
 
-        if (!canBeDuplicate) {
-            result = validateNotDuplicate(reservation, result);
-        }
+        result = validateNotDuplicate(reservation, result, isEdit);
         return result;
     }
 
-    private Result<Reservation> validateNulls(Reservation reservation, Result<Reservation> result) {
+    private Result<Reservation> validateNulls(Reservation reservation, Result<Reservation> result, boolean isEdit) {
         if (reservation == null) {
             result.addErrorMessage("Reservation cannot be null.");
             return result;
@@ -170,6 +177,10 @@ public class ReservationService {
             result.addErrorMessage("Host cannot be null.");
         }
 
+        if (isEdit) {
+            return result;
+        }
+
         if (reservation.getStartDate() == null) {
             result.addErrorMessage("Start Date cannot be null.");
         }
@@ -180,7 +191,27 @@ public class ReservationService {
         return result;
     }
 
-    private Result<Reservation> validateFields(Reservation reservation, Result<Reservation> result) {
+    private Result<Reservation> validateDates(Reservation reservation, Result<Reservation> result, boolean isEdit) {
+        if (isEdit) {
+            if (reservation.getStartDate() == null && reservation.getEndDate() == null) {
+                return result;
+            }
+            Reservation reservationToEdit = findByHostEmailGuestEmail(reservation.getHost().getEmail(), reservation.getGuest().getEmail());
+            if (reservation.getStartDate() == null) {
+                if (reservationToEdit.getStartDate().isAfter(reservation.getEndDate())
+                    || reservationToEdit.getStartDate().isEqual(reservation.getEndDate())) {
+                    result.addErrorMessage("Start Date cannot be after or on the same day as End Date.");
+                }
+                return result;
+            }
+            if (reservation.getEndDate() == null) {
+                if (reservationToEdit.getEndDate().isBefore(reservation.getStartDate())) {
+                    result.addErrorMessage("End Date cannot be before Start Date.");
+                }
+                return result;
+            }
+        }
+
         if (reservation.getStartDate().isAfter(reservation.getEndDate())
                 || reservation.getStartDate().isEqual(reservation.getEndDate())) {
             result.addErrorMessage("Start Date cannot be after or on the same day as End Date.");
@@ -188,12 +219,18 @@ public class ReservationService {
         return result;
     }
 
-    private Result<Reservation> validateNotDuplicate(Reservation reservation, Result<Reservation> result) {
+    private Result<Reservation> validateNotDuplicate(Reservation reservation, Result<Reservation> result, boolean isEdit) {
         Reservation duplicate = reservationRepo.findByHostIdGuestId(reservation.getHost().getId(),
                 reservation.getGuest().getGuestId());
 
         if (duplicate != null) {
-            result.addErrorMessage("This is a duplicate Reservation.");
+            if (!isEdit) {
+                result.addErrorMessage("This is a duplicate Reservation.");
+            }
+            return result;
+        }
+        if (isEdit) {
+            result.addErrorMessage("Reservation not found.");
         }
 
         return result;

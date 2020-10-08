@@ -47,7 +47,7 @@ public class GuestService {
                 matches.add(g);
             }
         }
-        if (matches.size() == 1 && (firstName.isBlank() || firstName.isEmpty())) {
+        if (matches.size() == 1 && (firstName == null || firstName.isBlank() || firstName.isEmpty())) {
             return matches.get(0);
         }
 
@@ -79,9 +79,20 @@ public class GuestService {
             return result;
         }
 
+        if (guest.getEmail() == null || guest.getEmail().isEmpty() || guest.getEmail().isBlank()) {
+            guest.setEmail(findByName(guest.getFirstName(), guest.getLastName()).getEmail());
+        }
+        if (guest.getPhone() == null || guest.getPhone().isEmpty() || guest.getPhone().isBlank()) {
+            guest.setPhone(findByName(guest.getFirstName(), guest.getLastName()).getPhone());
+        }
+        if (guest.getState() == null) {
+            guest.setState(findByName(guest.getFirstName(), guest.getLastName()).getState());
+        }
+
         if (!repository.edit(guest)) {
             result.addErrorMessage("Unable to edit.");
         }
+        result.setPayload(guest);
         return result;
     }
 
@@ -119,31 +130,33 @@ public class GuestService {
 
 
         if (!repository.deleteById(guest.getGuestId())) {
-            result.addErrorMessage("Error: Already entered guest has invalid ID.");
+            result.addErrorMessage("Error: Previously entered guest has invalid ID.");
         }
         return result;
     }
 
-    private Result<Guest> validate(Guest guest, boolean canBeDuplicate) {
+    private Result<Guest> validate(Guest guest, boolean isEdit) {
         Result<Guest> result = new Result<>();
-        result = validateNulls(guest, result);
+        result = validateNulls(guest, result, isEdit);
         if (!result.isSuccess()){
             return result;
         }
 
-        result = validateFields(guest, result);
+        result = validatePhone(guest, result, isEdit);
         if (!result.isSuccess()){
             return result;
         }
 
-        if (!canBeDuplicate) {
-            result = validateNotDuplicate(guest, result);
+        result = validateEmail(guest, result, isEdit);
+        if (!result.isSuccess()){
+            return result;
         }
 
+        result = validateNotDuplicate(guest, result, isEdit);
         return result;
     }
 
-    private Result<Guest> validateNulls(Guest guest, Result<Guest> result) {
+    private Result<Guest> validateNulls(Guest guest, Result<Guest> result, boolean isEdit) {
         if (guest == null) {
             result.addErrorMessage("Guest cannot be null.");
             return result;
@@ -155,6 +168,10 @@ public class GuestService {
 
         if (guest.getLastName() == null) {
             result.addErrorMessage("Last name cannot be null.");
+        }
+
+        if (isEdit) {
+            return result;
         }
 
         if (guest.getEmail() == null) {
@@ -171,7 +188,13 @@ public class GuestService {
         return result;
     }
 
-    private Result<Guest> validateFields(Guest guest, Result<Guest> result) {
+    private Result<Guest> validatePhone(Guest guest, Result<Guest> result, boolean isEdit) {
+        if (isEdit) {
+            if (guest.getPhone() == null || guest.getPhone().isEmpty() || guest.getPhone().isBlank()) {
+                return result;
+            }
+        }
+
         if (guest.getPhone().length() != 13
                 || guest.getPhone().charAt(0) != '('
                 || guest.getPhone().charAt(4) != ')'
@@ -180,8 +203,11 @@ public class GuestService {
             return result;
         }
 
-        char[] validNumbers = {'0','1','2','3','4','5','6','7','8','9'};
-        for (int i = 0; i < guest.getPhone().length(); i++) {
+        char[] validNumbers = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+        for (int i = 1; i < 13; i++) {
+            if (i == 4) {
+                i += 2;
+            }
             boolean found = false;
             for (char c : validNumbers) {
                 if (guest.getPhone().charAt(i) == c) {
@@ -194,20 +220,37 @@ public class GuestService {
             }
         }
         return result;
-
     }
 
-    private Result<Guest> validateNotDuplicate(Guest guest, Result<Guest> result) {
-        List<Guest> all = findAll();
-
-        for (Guest g : all) {
-            if (guest.getLastName().equals(g.getLastName())
-                    && guest.getFirstName().equals(g.getFirstName())) {
-                result.addErrorMessage("Guest already exists. To update this guest's information, use 'Edit'.");
+    private Result<Guest> validateEmail(Guest guest, Result<Guest> result, boolean isEdit) {
+        if (isEdit) {
+            if (guest.getEmail() == null || guest.getEmail().isEmpty() || guest.getEmail().isBlank()) {
                 return result;
             }
         }
 
+        if ((!guest.getEmail().contains("@")) || (!guest.getEmail().contains("."))) {
+            result.addErrorMessage("Invalid email. A proper email format is 'example@yahoo.com'.");
+        }
+        return result;
+    }
+
+    private Result<Guest> validateNotDuplicate(Guest guest, Result<Guest> result, boolean isEdit) {
+        List<Guest> all = findAll();
+
+        for (Guest g : all) {
+            if (guest.getLastName().equalsIgnoreCase(g.getLastName())
+                    && guest.getFirstName().equalsIgnoreCase(g.getFirstName())) {
+                if (!isEdit) {
+                    result.addErrorMessage("Guest already exists. To update this guest's information, use 'Edit'.");
+                }
+                return result;
+            }
+        }
+
+        if (isEdit) {
+            result.addErrorMessage("Entered Guest does not exist. ");
+        }
         return result;
     }
 }

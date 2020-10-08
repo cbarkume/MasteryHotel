@@ -12,8 +12,9 @@ import java.util.List;
 
 public class ReservationRepositoryDouble implements ReservationRepository {
 
-    private Host testHost = new Host("fish", "Barkume", "ceciliabarkume@gmail.com", "(734) 5079310", "1100 W Wells St", "Milwaukee", State.WI, "53233", new BigDecimal(10.00), new BigDecimal(15.00));
-    private Guest testGuest = new Guest(1, "Guesty", "McTesty", "guestymctesty@hotmail.com", "(555) 5555555", State.AK);
+    private Host testHost = new Host("TestID", "TestNAME", "Test@EMAIL.com", "(555) 5555555", "TestADDRESS",
+            "TestCITY", State.DE, "TestPOSTAL", new BigDecimal(10.00), new BigDecimal(15.00));
+    private Guest testGuest = new Guest(1, "Cecilia", "Barkume", "ceciliabarkume@gmail.com", "(734) 5079310", State.MI);
     private Reservation reservation = new Reservation(1, LocalDate.of(2020,10,6), LocalDate.of(2020,10,14), testHost, testGuest);
     private final List<Reservation> reservations = new ArrayList<>();
 
