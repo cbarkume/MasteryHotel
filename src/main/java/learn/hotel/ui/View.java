@@ -58,8 +58,6 @@ public class View {
         return io.readInt("",1,max);
     }
 
-
-
     public Reservation makeReservation(Host host, Guest guest) {
         Reservation reservation = new Reservation();
         reservation.setHost(host);

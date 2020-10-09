@@ -242,10 +242,10 @@ public class Controller {
                 if (r.getEndDate().isBefore(LocalDate.now())) {
                     Result<Reservation> result = reservationService.cancelByHostEmailGuestEmail(
                             r.getHost().getEmail(), r.getGuest().getEmail());
-                    io.printf("Reservation for Guest %s %s deleted as it started before %s.%n",
+                    io.printf("Reservation for Guest %s %s deleted as they checked out on %s.%n",
                             r.getGuest().getFirstName(),
                             r.getGuest().getLastName(),
-                            LocalDate.now().toString());
+                            r.getEndDate());
                 }
             }
         }
