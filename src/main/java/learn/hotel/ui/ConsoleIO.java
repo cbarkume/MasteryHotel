@@ -177,7 +177,6 @@ public class ConsoleIO {
                     guest.getPhone(),
                     guest.getEmail(),
                     guest.getState().fullName);
-            );
         }
     }
 
@@ -197,7 +196,6 @@ public class ConsoleIO {
                     host.getPostalCode(),
                     host.getStandardRate(),
                     host.getWeekendRate());
-
         }
     }
 
