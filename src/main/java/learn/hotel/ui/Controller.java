@@ -4,6 +4,14 @@ import learn.hotel.data.DataException;
 import learn.hotel.domain.GuestService;
 import learn.hotel.domain.HostService;
 import learn.hotel.domain.ReservationService;
+import learn.hotel.domain.Result;
+import learn.hotel.models.Guest;
+import learn.hotel.models.Host;
+import learn.hotel.models.Reservation;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
 
 public class Controller {
 
@@ -37,7 +45,7 @@ public class Controller {
             option = view.selectMainMenuOption();
             switch (option) {
                 case VIEW_RESERVATIONS:
-                    //viewReservations();
+                    viewReservations(option);
                     break;
                 case VIEW_GUESTS:
                     //viewGuests();
@@ -66,5 +74,45 @@ public class Controller {
             }
         } while (option != MainMenuOption.EXIT);
     }
+
+    private void viewReservations(MainMenuOption option) {
+        io.displayHeader(MainMenuOption.VIEW_RESERVATIONS.getMessage());
+        int choice = view.getSearchChoice(option);
+        List<Reservation> reservations = getReservationList(choice);
+    }
+
+    public List<Reservation> getReservationList(int choice) {
+        if (choice == 1) {
+            return reservationService.findByHostLastName(io.readRequiredString("Enter a last name to search for."));
+        }
+        else {
+            return reservationService.findByHostEmail(io.readRequiredString("Enter an email to search for."));
+        }
+    }
+
+    public List<Guest> getGuest(int choice) {
+        List<Guest> guests = new ArrayList<>();
+        if (choice == 1) {
+            guests.add(guestService.findByName(io.readRequiredString("Enter a first name to search for."),
+                    io.readRequiredString("Enter a last name to search for.")));
+        }
+        else if (choice == 2) {
+            guests = guestService.findByLastName(io.readRequiredString("Enter a last name to search for."));
+        }
+        else {
+            guests.add(guestService.findByEmail(io.readRequiredString("Enter an email to search for.")));
+        }
+        return guests;
+    }
+
+    public Host getHost(int choice) {
+        if (choice == 1) {
+            return hostService.findByLastName(io.readRequiredString("Enter a last name to search for."));
+        }
+        else {
+            return hostService.findByEmail(io.readRequiredString("Enter an email to search for."));
+        }
+    }
+
 
 }

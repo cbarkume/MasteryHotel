@@ -4,6 +4,7 @@ import learn.hotel.data.HostRepository;
 import learn.hotel.models.Guest;
 import learn.hotel.models.Host;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class HostService {
@@ -44,5 +45,24 @@ public class HostService {
             }
         }
         return null;
+    }
+
+    public List<Host> findByLastNamePrefix(String lastName) {
+        if (lastName == null) {
+            return null;
+        }
+
+        List<Host> all = findAll();
+        List<Host> matches = new ArrayList<>();
+
+        for (Host h : all) {
+            if (h.getLastName().startsWith(lastName)) {
+                matches.add(h);
+            }
+        }
+        if (matches.size() == 0) {
+            return null;
+        }
+        return matches;
     }
 }

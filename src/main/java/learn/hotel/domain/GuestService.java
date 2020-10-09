@@ -20,11 +20,11 @@ public class GuestService {
     }
 
     public Guest findByEmail (String email) {
-        List<Guest> all = findAll();
-
         if (email == null) {
             return null;
         }
+
+        List<Guest> all = findAll();
 
         for (Guest g : all) {
             if (g.getEmail().equalsIgnoreCase(email)) {
@@ -60,6 +60,26 @@ public class GuestService {
             }
         }
         return null;
+    }
+
+    public List<Guest> findByLastName (String lastName) {
+        if (lastName == null) {
+            return null;
+        }
+
+        List<Guest> all = findAll();
+        List<Guest> matches = new ArrayList<>();
+
+        for (Guest g : all) {
+            if (g.getLastName().startsWith(lastName.toLowerCase())) {
+                matches.add(g);
+            }
+        }
+
+        if (matches.size() == 0) {
+            return null;
+        }
+        return matches;
     }
 
     public Result<Guest> add(Guest guest) throws DataException {
