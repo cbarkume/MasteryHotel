@@ -4,14 +4,12 @@ import learn.hotel.data.DataException;
 import learn.hotel.domain.GuestService;
 import learn.hotel.domain.HostService;
 import learn.hotel.domain.ReservationService;
-import learn.hotel.domain.Result;
 import learn.hotel.models.Guest;
 import learn.hotel.models.Host;
 import learn.hotel.models.Reservation;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 
 public class Controller {
 
@@ -48,10 +46,10 @@ public class Controller {
                     viewReservations(option);
                     break;
                 case VIEW_GUESTS:
-                    //viewGuests();
+                    viewGuests(option);
                     break;
                 case VIEW_HOSTS:
-                    //viewHosts();
+                    viewHosts(option);
                     break;
                 case ADD_RESERVATION:
                     //addReservation();
@@ -76,9 +74,27 @@ public class Controller {
     }
 
     private void viewReservations(MainMenuOption option) {
-        io.displayHeader(MainMenuOption.VIEW_RESERVATIONS.getMessage());
+        io.displayHeader(option.getMessage());
         int choice = view.getSearchChoice(option);
         List<Reservation> reservations = getReservationList(choice);
+        io.displayReservations(reservations);
+        io.enterToContinue();
+    }
+
+    private void viewGuests(MainMenuOption option) {
+        io.displayHeader(option.getMessage());
+        int choice = view.getSearchChoice(option);
+        List<Guest> guests = getGuestList(choice);
+        io.displayGuests(guests);
+        io.enterToContinue();
+    }
+
+    private void viewHosts(MainMenuOption option) {
+        io.displayHeader(option.getMessage());
+        int choice = view.getSearchChoice(option);
+        List<Host> hosts = getHostList(choice);
+        io.displayHosts(hosts);
+        io.enterToContinue();
     }
 
     public List<Reservation> getReservationList(int choice) {
@@ -90,28 +106,40 @@ public class Controller {
         }
     }
 
-    public List<Guest> getGuest(int choice) {
+    public List<Guest> getGuestList(int choice) {
         List<Guest> guests = new ArrayList<>();
         if (choice == 1) {
-            guests.add(guestService.findByName(io.readRequiredString("Enter a first name to search for."),
-                    io.readRequiredString("Enter a last name to search for.")));
+            Guest guest = guestService.findByName(io.readRequiredString("Enter a first name to search for."),
+                    io.readRequiredString("Enter a last name to search for."));
+            if (guest != null) {
+                guests.add(guest);
+            }
         }
         else if (choice == 2) {
-            guests = guestService.findByLastName(io.readRequiredString("Enter a last name to search for."));
+            guests = guestService.findByLastNamePrefix(io.readRequiredString("Enter a last name to search for."));
         }
         else {
-            guests.add(guestService.findByEmail(io.readRequiredString("Enter an email to search for.")));
+
+            Guest guest = guestService.findByEmail(io.readRequiredString("Enter an email to search for."));
+            if (guest != null) {
+                guests.add(guest);
+            }
         }
         return guests;
     }
 
-    public Host getHost(int choice) {
+    public List<Host> getHostList(int choice) {
+        List<Host> hosts = new ArrayList<>();
         if (choice == 1) {
-            return hostService.findByLastName(io.readRequiredString("Enter a last name to search for."));
+            hosts = hostService.findByLastNamePrefix(io.readRequiredString("Enter a last name to search for."));
         }
         else {
-            return hostService.findByEmail(io.readRequiredString("Enter an email to search for."));
+            Host host = hostService.findByEmail(io.readRequiredString("Enter an email to search for."));
+            if (host != null) {
+                hosts.add(host);
+            }
         }
+        return hosts;
     }
 
 

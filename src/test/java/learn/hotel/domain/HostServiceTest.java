@@ -4,6 +4,8 @@ import learn.hotel.data.HostRepositoryDouble;
 import learn.hotel.models.Host;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class HostServiceTest {
@@ -46,5 +48,23 @@ class HostServiceTest {
     void shouldNotFindByNullLastName() {
         Host host = service.findByLastName(null);
         assertNull(host);
+    }
+
+    @Test
+    void shouldFindByLastNamePrefix() {
+        List<Host> hosts = service.findByLastNamePrefix("T");
+        assertEquals("TestID", hosts.get(0).getId());
+    }
+
+    @Test
+    void shouldNotFindForInvalidLastName() {
+        List<Host> hosts = service.findByLastNamePrefix("sbhflkhbindobhnd");
+        assertEquals(0,hosts.size());
+    }
+
+    @Test
+    void shouldNotFindForNullLastName() {
+        List<Host> hosts = service.findByLastNamePrefix(null);
+        assertNull(hosts);
     }
 }

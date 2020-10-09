@@ -8,6 +8,7 @@ import learn.hotel.models.Guest;
 import learn.hotel.models.Host;
 import learn.hotel.models.Reservation;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.DataFormatException;
 
@@ -62,8 +63,10 @@ public class ReservationService {
     public List<Reservation> findByHostEmail(String email) {
         Host host = hostService.findByEmail(email);
 
+        List<Reservation> reservations = new ArrayList<>();
+
         if (host == null) {
-            return null;
+            return reservations;
         }
 
         List <Reservation> reservation = reservationRepo.findByHostId(host.getId());
@@ -73,11 +76,13 @@ public class ReservationService {
     public List<Reservation> findByHostLastName(String lastName) {
         Host host = hostService.findByLastName(lastName);
 
+        List<Reservation> reservations = new ArrayList<>();
+
         if (host == null) {
-            return null;
+            return reservations;
         }
 
-        List<Reservation> reservations = reservationRepo.findByHostId(host.getId());
+        reservations = reservationRepo.findByHostId(host.getId());
         return reservations;
     }
 

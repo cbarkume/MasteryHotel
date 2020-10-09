@@ -62,7 +62,7 @@ public class GuestService {
         return null;
     }
 
-    public List<Guest> findByLastName (String lastName) {
+    public List<Guest> findByLastNamePrefix(String lastName) {
         if (lastName == null) {
             return null;
         }
@@ -71,13 +71,9 @@ public class GuestService {
         List<Guest> matches = new ArrayList<>();
 
         for (Guest g : all) {
-            if (g.getLastName().startsWith(lastName.toLowerCase())) {
+            if (g.getLastName().startsWith(lastName)) {
                 matches.add(g);
             }
-        }
-
-        if (matches.size() == 0) {
-            return null;
         }
         return matches;
     }

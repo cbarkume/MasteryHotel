@@ -60,9 +60,6 @@ public class HostService {
                 matches.add(h);
             }
         }
-        if (matches.size() == 0) {
-            return null;
-        }
         return matches;
     }
 }

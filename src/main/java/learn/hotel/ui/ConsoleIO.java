@@ -166,7 +166,7 @@ public class ConsoleIO {
     }
 
     public void displayGuests(List<Guest> guests) {
-        if (guests == null || guests.isEmpty()) {
+        if (guests == null || guests.size() == 0) {
             println("No guests found.");
             return;
         }
@@ -181,7 +181,7 @@ public class ConsoleIO {
     }
 
     public void displayHosts(List<Host> hosts) {
-        if (hosts == null || hosts.isEmpty()) {
+        if (hosts == null || hosts.size() == 0) {
             println("No hosts found.");
             return;
         }
@@ -201,7 +201,7 @@ public class ConsoleIO {
 
     public void displayReservations(List<Reservation> reservations) {
 
-        if (reservations.size() == 0) {
+        if (reservations == null || reservations.size() == 0) {
             println("No items found");
         }
 

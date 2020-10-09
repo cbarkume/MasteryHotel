@@ -6,6 +6,8 @@ import learn.hotel.data.HostRepositoryDouble;
 import learn.hotel.models.*;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class GuestServiceTest {
@@ -57,6 +59,22 @@ class GuestServiceTest {
 
         guest = service.findByName(null, null);
         assertNull(guest);
+    }
+
+    @Test
+    void shouldFindByLastNamePrefix() {
+        List<Guest> guests = service.findByLastNamePrefix("B");
+        assertEquals(1, guests.size());
+    }
+    @Test
+    void shouldNotFindByInvalidLastNamePrefix() {
+        List<Guest> guests = service.findByLastNamePrefix("foaishroaidhgsgbv");
+        assertEquals(0, guests.size());
+    }
+    @Test
+    void shouldNotFindByNullLastNamePrefix() {
+        List<Guest> guests = service.findByLastNamePrefix(null);
+        assertNull(guests);
     }
 
     @Test
@@ -174,4 +192,5 @@ class GuestServiceTest {
         Result<Guest> result = service.deleteByEmail(null);
         assertTrue(result.getErrorMessages().size() > 0);
     }
+
 }
