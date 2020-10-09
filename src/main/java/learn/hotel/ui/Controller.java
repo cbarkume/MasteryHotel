@@ -4,6 +4,7 @@ import learn.hotel.data.DataException;
 import learn.hotel.domain.GuestService;
 import learn.hotel.domain.HostService;
 import learn.hotel.domain.ReservationService;
+import learn.hotel.domain.Result;
 import learn.hotel.models.Guest;
 import learn.hotel.models.Host;
 import learn.hotel.models.Reservation;
@@ -52,10 +53,10 @@ public class Controller {
                     viewHosts(option);
                     break;
                 case ADD_RESERVATION:
-                    //addReservation();
+                    addReservation();
                     break;
                 case ADD_GUEST:
-                    //addGuest();
+                    addGuest();
                     break;
                 case EDIT_RESERVATION:
                     //editReservation();
@@ -142,5 +143,56 @@ public class Controller {
         return hosts;
     }
 
+    public void addReservation() throws DataException {
+        io.displayHeader(MainMenuOption.ADD_RESERVATION.getMessage());
+        Guest guest = getGuest();
+        if (guest == null) {
+            return;
+        }
+
+        Host host = getHost();
+        if (host == null) {
+            return;
+        }
+
+        Reservation reservation = view.makeReservation(host, guest);
+        Result<Reservation> result = reservationService.add(reservation);
+        if (!result.isSuccess()) {
+            io.displayStatus(false, result.getErrorMessages());
+        }
+        else {
+            String successMessage = String.format("Reservation with ID %s created.", result.getPayload().getId());
+            io.displayStatus(true, successMessage);
+        }
+
+    }
+
+    public void addGuest() throws DataException {
+        io.displayHeader(MainMenuOption.ADD_GUEST.getMessage());
+        Guest guest = view.makeGuest();
+        if (guest == null) {
+            return;
+        }
+        Result<Guest> result = guestService.add(guest);
+        if (!result.isSuccess()) {
+            io.displayStatus(false, result.getErrorMessages());
+        }
+        else {
+            String successMessage = String.format("Guest with ID %s created.", result.getPayload().getGuestId());
+            io.displayStatus(true, successMessage);
+        }
+    }
+
+    private Guest getGuest() {
+        String lastNamePrefix = view.getGuestLastNamePrefix();
+        List<Guest> guests = guestService.findByLastNamePrefix(lastNamePrefix);
+        return view.chooseGuest(guests);
+    }
+
+    private Host getHost() {
+        String lastNamePrefix = view.getHostLastNamePrefix();
+        List<Host> hosts = hostService.findByLastNamePrefix(lastNamePrefix);
+        return view.chooseHost(hosts);
+    }
 
 }
