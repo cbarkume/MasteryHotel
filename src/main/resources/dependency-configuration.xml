@@ -46,9 +46,10 @@
 
     <!-- Controller -->
     <bean class="learn.hotel.ui.Controller">
-        <constructor-arg ref="view"/>
         <constructor-arg ref="guestService"/>
         <constructor-arg ref="hostService"/>
         <constructor-arg ref="reservationService"/>
+        <constructor-arg ref="view"/>
+        <constructor-arg ref="io"/>
     </bean>
 </beans>
