@@ -141,6 +141,7 @@ public class ReservationService {
         if (!reservationRepo.cancelByHostIdGuestId(reservation.getHost().getId(), reservation.getGuest().getGuestId())) {
             result.addErrorMessage("Error: Already entered guest has invalid ID.");
         }
+        result.setPayload(reservation);
         return result;
     }
 
@@ -158,6 +159,7 @@ public class ReservationService {
         if (!reservationRepo.cancelByHostIdGuestId(reservation.getHost().getId(), reservation.getGuest().getGuestId())) {
             result.addErrorMessage("Error: Already entered guest has invalid ID.");
         }
+        result.setPayload(reservation);
         return result;
     }
 

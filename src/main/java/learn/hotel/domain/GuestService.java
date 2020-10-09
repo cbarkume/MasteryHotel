@@ -138,6 +138,7 @@ public class GuestService {
         if (!repository.deleteById(guest.getGuestId())) {
             result.addErrorMessage("Error: Already entered guest has invalid ID.");
         }
+        result.setPayload(guest);
         return result;
     }
 
@@ -155,6 +156,7 @@ public class GuestService {
         if (!repository.deleteById(guest.getGuestId())) {
             result.addErrorMessage("Error: Previously entered guest has invalid ID.");
         }
+        result.setPayload(guest);
         return result;
     }
 

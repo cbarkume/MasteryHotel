@@ -8,7 +8,9 @@ import learn.hotel.domain.Result;
 import learn.hotel.models.Guest;
 import learn.hotel.models.Host;
 import learn.hotel.models.Reservation;
+import org.springframework.cglib.core.Local;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,10 +67,13 @@ public class Controller {
                     editGuest();
                     break;
                 case CANCEL_RESERVATION:
-                    //cancelReservation();
+                    cancelReservation();
                     break;
                 case DELETE_GUEST:
-                    //deleteGuest();
+                    deleteGuest();
+                    break;
+                case DELETE_CHECKED_OUT:
+                    deleteReservationsWithCheckedOutGuests();
                     break;
             }
         } while (option != MainMenuOption.EXIT);
@@ -98,7 +103,7 @@ public class Controller {
         io.enterToContinue();
     }
 
-    public void addReservation() throws DataException {
+    private void addReservation() throws DataException {
         io.displayHeader(MainMenuOption.ADD_RESERVATION.getMessage());
         Guest guest = getGuest();
         if (guest == null) {
@@ -122,7 +127,7 @@ public class Controller {
 
     }
 
-    public void addGuest() throws DataException {
+    private void addGuest() throws DataException {
         io.displayHeader(MainMenuOption.ADD_GUEST.getMessage());
         Guest guest = view.makeGuest();
         if (guest == null) {
@@ -138,7 +143,7 @@ public class Controller {
         }
     }
 
-    public void editReservation() throws DataException {
+    private void editReservation() throws DataException {
         io.displayHeader(MainMenuOption.EDIT_RESERVATION.getMessage());
         Guest guest = getGuest();
         if (guest == null) {
@@ -161,7 +166,7 @@ public class Controller {
         }
     }
 
-    public void editGuest() throws DataException {
+    private void editGuest() throws DataException {
         io.displayHeader(MainMenuOption.EDIT_RESERVATION.getMessage());
         Guest guest = getGuest();
         if (guest == null) {
@@ -177,6 +182,72 @@ public class Controller {
         else {
             String successMessage = String.format("Guest with ID %s edited.", result.getPayload().getGuestId());
             io.displayStatus(true, successMessage);
+        }
+    }
+
+    private void cancelReservation() throws DataException {
+        MainMenuOption option = MainMenuOption.CANCEL_RESERVATION;
+        io.displayHeader(option.getMessage());
+
+        int choice = view.getSearchChoice(option);
+        List<Reservation> reservations = getReservationList(choice);
+
+        if (reservations.size() == 0) { return; }
+
+        Reservation reservation = io.displayAndChooseReservations(reservations);
+
+        if (reservation == null) { return; }
+
+        Result<Reservation> result = reservationService.cancelByHostEmailGuestEmail(
+                reservation.getHost().getEmail(), reservation.getGuest().getEmail());
+
+        if (!result.isSuccess()) {
+            io.displayStatus(false, result.getErrorMessages());
+        }
+        else {
+            String successMessage = String.format("Reservation with ID %s cancelled.", result.getPayload().getId());
+            io.displayStatus(true, successMessage);
+        }
+    }
+
+    private void deleteGuest() throws DataException {
+        MainMenuOption option = MainMenuOption.DELETE_GUEST;
+        io.displayHeader(option.getMessage());
+
+        int choice = view.getSearchChoice(option);
+        List<Guest> guests = getGuestList(choice);
+
+        if (guests.size() == 0) { return; }
+
+        Guest guest = io.displayAndChooseGuests(guests);
+
+        if (guest == null) { return; }
+
+        Result<Guest> result = guestService.deleteByEmail(guest.getEmail());
+        if (!result.isSuccess()) {
+            io.displayStatus(false, result.getErrorMessages());
+        }
+        else {
+            String successMessage = String.format("Guest with ID %s deleted.", result.getPayload().getGuestId());
+            io.displayStatus(true, successMessage);
+        }
+    }
+
+    private void deleteReservationsWithCheckedOutGuests() throws DataException {
+        List<Host> allHosts = hostService.findAll();
+
+        for (Host h : allHosts) {
+            List<Reservation> allReservations = reservationService.findByHostLastName(h.getLastName());
+            for (Reservation r : allReservations) {
+                if (r.getEndDate().isBefore(LocalDate.now())) {
+                    Result<Reservation> result = reservationService.cancelByHostEmailGuestEmail(
+                            r.getHost().getEmail(), r.getGuest().getEmail());
+                    io.printf("Reservation for Guest %s %s deleted as it started before %s.%n",
+                            r.getGuest().getFirstName(),
+                            r.getGuest().getLastName(),
+                            LocalDate.now().toString());
+                }
+            }
         }
     }
 

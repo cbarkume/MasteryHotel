@@ -11,7 +11,8 @@ public enum MainMenuOption {
     EDIT_RESERVATION(6, "Edit Reservation"),
     EDIT_GUEST(7, "Edit Guest"),
     CANCEL_RESERVATION(8, "Cancel Reservation"),
-    DELETE_GUEST(9, "Delete Guest");
+    DELETE_GUEST(9, "Delete Guest"),
+    DELETE_CHECKED_OUT(10, "Delete Reservations With Checked Out Guests");
 
     private int value;
     private String message;

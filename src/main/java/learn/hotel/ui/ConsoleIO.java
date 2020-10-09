@@ -224,4 +224,51 @@ public class ConsoleIO {
                     reservation.getTotal());
         }
     }
+
+    public Guest displayAndChooseGuests(List<Guest> guests) {
+        if (guests == null || guests.size() == 0) {
+            println("No guests found.");
+            return null;
+        }
+        int index = 1;
+        for (Guest guest : guests) {
+            printf("%s: Guest Name: %s %s, Phone: %s, Email: %s, State: %s%n",
+                    index,
+                    guest.getFirstName(),
+                    guest.getLastName(),
+                    guest.getPhone(),
+                    guest.getEmail(),
+                    guest.getState().fullName);
+            index++;
+        }
+        int choice = readInt("Choose a Guest to delete or 0 to exit.", 0, index - 1);
+        if (choice == 0) {
+            return null;
+        }
+        return guests.get(choice - 1);
+    }
+
+    public Reservation displayAndChooseReservations(List<Reservation> reservations) {
+
+        if (reservations == null || reservations.size() == 0) {
+            println("No items found");
+        }
+        int index = 1;
+        for (Reservation reservation : reservations) {
+            printf("%s: Host Name: %s, Guest Name: %s %s, Duration: %s to %s, Total: $%s%n",
+                    index,
+                    reservation.getHost().getLastName(),
+                    reservation.getGuest().getFirstName(),
+                    reservation.getGuest().getLastName(),
+                    reservation.getStartDate().toString(),
+                    reservation.getEndDate().toString(),
+                    reservation.getTotal());
+            index++;
+        }
+        int choice = readInt("Choose a Guest to delete or 0 to exit.", 0, index - 1);
+        if (choice == 0) {
+            return null;
+        }
+        return reservations.get(choice - 1);
+    }
 }
