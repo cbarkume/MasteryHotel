@@ -102,9 +102,18 @@ public class ConsoleIO {
         }
     }
 
-    public LocalDate readLocalDate(String prompt) {
+    public LocalDate readLocalDate(String prompt, boolean canBeBlank) {
         while (true) {
-            String input = readRequiredString(prompt);
+            String input;
+            if (canBeBlank) {
+                input = readString(prompt);
+                if (input == null || input.isEmpty() || input.isBlank()) {
+                    return null;
+                }
+            }
+            else {
+                input = readRequiredString(prompt);
+            }
             try {
                 return LocalDate.parse(input, formatter);
             } catch (DateTimeParseException ex) {

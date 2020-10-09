@@ -103,6 +103,8 @@ public class ReservationService {
         if (!result.isSuccess()) {
             return result;
         }
+        reservation.setId(findByHostEmailGuestEmail
+                (reservation.getHost().getEmail(), reservation.getGuest().getEmail()).getId());
 
         if (reservation.getStartDate() == null) {
             reservation.setStartDate(findByHostEmailGuestEmail
@@ -121,6 +123,7 @@ public class ReservationService {
         if (!reservationRepo.edit(reservation)) {
             result.addErrorMessage("Unable to edit.");
         }
+        result.setPayload(reservation);
         return result;
     }
 

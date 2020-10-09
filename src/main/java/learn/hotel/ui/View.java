@@ -1,5 +1,6 @@
 package learn.hotel.ui;
 
+import learn.hotel.domain.Result;
 import learn.hotel.models.Guest;
 import learn.hotel.models.Host;
 import learn.hotel.models.Reservation;
@@ -63,8 +64,8 @@ public class View {
         Reservation reservation = new Reservation();
         reservation.setHost(host);
         reservation.setGuest(guest);
-        reservation.setStartDate(io.readLocalDate("Reservation Start Date [MM/dd/yyyy]: "));
-        reservation.setEndDate(io.readLocalDate("Reservation End Date [MM/dd/yyyy]: "));
+        reservation.setStartDate(io.readLocalDate("Reservation Start Date [MM/dd/yyyy]: ", false));
+        reservation.setEndDate(io.readLocalDate("Reservation End Date [MM/dd/yyyy]: ", false));
         reservation.setTotal(reservation.calculateTotal());
         return reservation;
     }
@@ -75,19 +76,31 @@ public class View {
         guest.setLastName(io.readRequiredString("Guest Last Name: "));
         guest.setEmail(io.readRequiredString("Guest Email: "));
         guest.setPhone(io.readRequiredString("Guest Phone Number [(###) #######]: "));
-        guest.setState(getState());
+        guest.setState(getState(false));
         return guest;
     }
 
-    public State getState() {
+    public State getState(boolean canBeBlank) {
         io.displayHeader("State choice");
         int index = 1;
+        int min = 1;
         for (State s : State.values()) {
-            io.printf("%s: %s%n", index++, s);
+            if (index % 10 == 0) {
+                io.println("");
+            }
+            io.printf("%s: %s ", index++, s.getName());
         }
         index--;
-        String message = String.format("Select a State [1-%s]: ", index);
-        return State.values()[io.readInt(message,1,index) - 1];
+        if (canBeBlank) {
+            min = 0;
+            io.print("\nEnter 0 to keep State the same.");
+        }
+        String message = String.format("%nSelect a State [%s-%s]: ", min, index);
+        int value = io.readInt(message,min,index) - 1;
+        if (value == -1) {
+            return null;
+        }
+        return State.values()[value];
     }
 
     public String getGuestLastNamePrefix() {
@@ -138,5 +151,26 @@ public class View {
             return null;
         }
         return hosts.get(index - 1);
+    }
+
+    public Reservation updateReservation(Host host, Guest guest) {
+        io.println("Leave any field blank to keep existing value.");
+        Reservation reservation = new Reservation();
+        reservation.setHost(host);
+        reservation.setGuest(guest);
+        reservation.setStartDate(io.readLocalDate("Reservation Start Date [MM/dd/yyyy]: ", true));
+        reservation.setEndDate(io.readLocalDate("Reservation End Date [MM/dd/yyyy]: ", true));
+        reservation.setTotal(reservation.calculateTotal());
+
+        return reservation;
+    }
+
+    public Guest updateGuest(Guest guest) {
+        io.println("Leave any field blank to keep existing value.");
+        guest.setEmail(io.readString("Guest Email: "));
+        guest.setPhone(io.readString("Guest Phone Number [(###) #######]: "));
+        guest.setState(getState(true));
+
+        return guest;
     }
 }

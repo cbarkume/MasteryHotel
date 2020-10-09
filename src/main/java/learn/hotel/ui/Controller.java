@@ -59,10 +59,10 @@ public class Controller {
                     addGuest();
                     break;
                 case EDIT_RESERVATION:
-                    //editReservation();
+                    editReservation();
                     break;
                 case EDIT_GUEST:
-                    //editGuest();
+                    editGuest();
                     break;
                 case CANCEL_RESERVATION:
                     //cancelReservation();
@@ -96,51 +96,6 @@ public class Controller {
         List<Host> hosts = getHostList(choice);
         io.displayHosts(hosts);
         io.enterToContinue();
-    }
-
-    public List<Reservation> getReservationList(int choice) {
-        if (choice == 1) {
-            return reservationService.findByHostLastName(io.readRequiredString("Enter a last name to search for."));
-        }
-        else {
-            return reservationService.findByHostEmail(io.readRequiredString("Enter an email to search for."));
-        }
-    }
-
-    public List<Guest> getGuestList(int choice) {
-        List<Guest> guests = new ArrayList<>();
-        if (choice == 1) {
-            Guest guest = guestService.findByName(io.readRequiredString("Enter a first name to search for."),
-                    io.readRequiredString("Enter a last name to search for."));
-            if (guest != null) {
-                guests.add(guest);
-            }
-        }
-        else if (choice == 2) {
-            guests = guestService.findByLastNamePrefix(io.readRequiredString("Enter a last name to search for."));
-        }
-        else {
-
-            Guest guest = guestService.findByEmail(io.readRequiredString("Enter an email to search for."));
-            if (guest != null) {
-                guests.add(guest);
-            }
-        }
-        return guests;
-    }
-
-    public List<Host> getHostList(int choice) {
-        List<Host> hosts = new ArrayList<>();
-        if (choice == 1) {
-            hosts = hostService.findByLastNamePrefix(io.readRequiredString("Enter a last name to search for."));
-        }
-        else {
-            Host host = hostService.findByEmail(io.readRequiredString("Enter an email to search for."));
-            if (host != null) {
-                hosts.add(host);
-            }
-        }
-        return hosts;
     }
 
     public void addReservation() throws DataException {
@@ -183,6 +138,49 @@ public class Controller {
         }
     }
 
+    public void editReservation() throws DataException {
+        io.displayHeader(MainMenuOption.EDIT_RESERVATION.getMessage());
+        Guest guest = getGuest();
+        if (guest == null) {
+            return;
+        }
+
+        Host host = getHost();
+        if (host == null) {
+            return;
+        }
+        Reservation reservation = view.updateReservation(host,guest);
+        Result<Reservation> result = reservationService.edit(reservation);
+
+        if (!result.isSuccess()) {
+            io.displayStatus(false, result.getErrorMessages());
+        }
+        else {
+            String successMessage = String.format("Reservation with ID %s edited.", result.getPayload().getId());
+            io.displayStatus(true, successMessage);
+        }
+    }
+
+    public void editGuest() throws DataException {
+        io.displayHeader(MainMenuOption.EDIT_RESERVATION.getMessage());
+        Guest guest = getGuest();
+        if (guest == null) {
+            return;
+        }
+
+        guest = view.updateGuest(guest);
+        Result<Guest> result = guestService.edit(guest);
+
+        if (!result.isSuccess()) {
+            io.displayStatus(false, result.getErrorMessages());
+        }
+        else {
+            String successMessage = String.format("Guest with ID %s edited.", result.getPayload().getGuestId());
+            io.displayStatus(true, successMessage);
+        }
+    }
+
+    //Helper methods
     private Guest getGuest() {
         String lastNamePrefix = view.getGuestLastNamePrefix();
         List<Guest> guests = guestService.findByLastNamePrefix(lastNamePrefix);
@@ -193,6 +191,51 @@ public class Controller {
         String lastNamePrefix = view.getHostLastNamePrefix();
         List<Host> hosts = hostService.findByLastNamePrefix(lastNamePrefix);
         return view.chooseHost(hosts);
+    }
+
+    private List<Reservation> getReservationList(int choice) {
+        if (choice == 1) {
+            return reservationService.findByHostLastName(io.readRequiredString("Enter a last name to search for."));
+        }
+        else {
+            return reservationService.findByHostEmail(io.readRequiredString("Enter an email to search for."));
+        }
+    }
+
+    private List<Guest> getGuestList(int choice) {
+        List<Guest> guests = new ArrayList<>();
+        if (choice == 1) {
+            Guest guest = guestService.findByName(io.readRequiredString("Enter a first name to search for."),
+                    io.readRequiredString("Enter a last name to search for."));
+            if (guest != null) {
+                guests.add(guest);
+            }
+        }
+        else if (choice == 2) {
+            guests = guestService.findByLastNamePrefix(io.readRequiredString("Enter a last name to search for."));
+        }
+        else {
+
+            Guest guest = guestService.findByEmail(io.readRequiredString("Enter an email to search for."));
+            if (guest != null) {
+                guests.add(guest);
+            }
+        }
+        return guests;
+    }
+
+    private List<Host> getHostList(int choice) {
+        List<Host> hosts = new ArrayList<>();
+        if (choice == 1) {
+            hosts = hostService.findByLastNamePrefix(io.readRequiredString("Enter a last name to search for."));
+        }
+        else {
+            Host host = hostService.findByEmail(io.readRequiredString("Enter an email to search for."));
+            if (host != null) {
+                hosts.add(host);
+            }
+        }
+        return hosts;
     }
 
 }

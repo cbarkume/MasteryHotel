@@ -162,7 +162,7 @@ public class ReservationFileRepository implements ReservationRepository {
         Guest guest = guestRepo.findById(Integer.parseInt(fields[3]));
         reservation.setGuest(guest);
 
-        reservation.setTotal(new BigDecimal(fields[4]));
+        reservation.setTotal(reservation.calculateTotal());
 
         return reservation;
     }

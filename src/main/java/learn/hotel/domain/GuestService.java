@@ -95,6 +95,7 @@ public class GuestService {
         if (!result.isSuccess()) {
             return result;
         }
+        guest.setGuestId(findByName(guest.getFirstName(), guest.getLastName()).getGuestId());
 
         if (guest.getEmail() == null || guest.getEmail().isEmpty() || guest.getEmail().isBlank()) {
             guest.setEmail(findByName(guest.getFirstName(), guest.getLastName()).getEmail());
