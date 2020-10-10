@@ -79,13 +79,13 @@ class ReservationServiceTest {
     @Test
     void shouldNotFindByInvalidHostEmail() {
         List<Reservation> reservations = service.findByHostEmail("Test@s.com");
-        assertNull(reservations);
+        assertEquals(0,reservations.size());
 
         reservations = service.findByHostEmail(" ");
-        assertNull(reservations);
+        assertEquals(0,reservations.size());
 
         reservations = service.findByHostEmail(null);
-        assertNull(reservations);
+        assertEquals(0,reservations.size());
     }
 
     @Test
@@ -97,13 +97,13 @@ class ReservationServiceTest {
     @Test
     void shouldNotFindByInvalidHostLastName() {
         List<Reservation> reservations = service.findByHostLastName("sdgsddgsd");
-        assertNull(reservations);
+        assertEquals(0,reservations.size());
 
         reservations = service.findByHostLastName(" ");
-        assertNull(reservations);
+        assertEquals(0,reservations.size());
 
         reservations = service.findByHostLastName(null);
-        assertNull(reservations);
+        assertEquals(0,reservations.size());
     }
 
     @Test
