@@ -67,11 +67,21 @@ public class GuestService {
             return null;
         }
 
+        String firstLetter = lastName.substring(0,1);
+        firstLetter = firstLetter.toUpperCase();
+        String name = firstLetter;
+
+        if (lastName.length() > 1) {
+            String nameRemainder = lastName.substring(1);
+            nameRemainder = nameRemainder.toLowerCase();
+            name += nameRemainder;
+        }
+
         List<Guest> all = findAll();
         List<Guest> matches = new ArrayList<>();
 
         for (Guest g : all) {
-            if (g.getLastName().startsWith(lastName)) {
+            if (g.getLastName().startsWith(name)) {
                 matches.add(g);
             }
         }
@@ -218,7 +228,7 @@ public class GuestService {
                 || guest.getPhone().charAt(0) != '('
                 || guest.getPhone().charAt(4) != ')'
                 || guest.getPhone().charAt(5) != ' ') {
-            result.addErrorMessage("Phone number be in format: (###) #######.");
+            result.addErrorMessage("Phone number must be in format: (###) #######.");
             return result;
         }
 
@@ -234,7 +244,7 @@ public class GuestService {
                 }
             }
             if (!found) {
-                result.addErrorMessage("Phone number be in format: (###) #######.");
+                result.addErrorMessage("Phone number must be in format: (###) #######.");
                 return result;
             }
         }

@@ -116,6 +116,14 @@ public class Controller {
         }
 
         Reservation reservation = view.makeReservation(host, guest);
+        reservation.setTotal(reservation.calculateTotal());
+
+        boolean ok = view.getReservationSummary(reservation);
+        if (!ok) {
+            io.println("Reservation not added.");
+            return;
+        }
+
         Result<Reservation> result = reservationService.add(reservation);
         if (!result.isSuccess()) {
             io.displayStatus(false, result.getErrorMessages());
@@ -133,6 +141,12 @@ public class Controller {
         if (guest == null) {
             return;
         }
+        boolean ok = view.getGuestSummary(guest);
+        if (!ok) {
+            io.println("Guest not added.");
+            return;
+        }
+
         Result<Guest> result = guestService.add(guest);
         if (!result.isSuccess()) {
             io.displayStatus(false, result.getErrorMessages());
@@ -155,6 +169,24 @@ public class Controller {
             return;
         }
         Reservation reservation = view.updateReservation(host,guest);
+
+        if (reservation.getStartDate() == null) {
+            reservation.setStartDate(reservationService.findByHostEmailGuestEmail
+                    (reservation.getHost().getEmail(), reservation.getGuest().getEmail()).getStartDate());
+        }
+        if (reservation.getEndDate() == null) {
+            reservation.setEndDate(reservationService.findByHostEmailGuestEmail
+                    (reservation.getHost().getEmail(), reservation.getGuest().getEmail()).getEndDate());
+        }
+
+        reservation.setTotal(reservation.calculateTotal());
+
+        boolean ok = view.getReservationSummary(reservation);
+        if (!ok) {
+            io.println("Reservation not added.");
+            return;
+        }
+
         Result<Reservation> result = reservationService.edit(reservation);
 
         if (!result.isSuccess()) {
@@ -174,6 +206,13 @@ public class Controller {
         }
 
         guest = view.updateGuest(guest);
+
+        boolean ok = view.getGuestSummary(guest);
+        if (!ok) {
+            io.println("Guest not added.");
+            return;
+        }
+
         Result<Guest> result = guestService.edit(guest);
 
         if (!result.isSuccess()) {

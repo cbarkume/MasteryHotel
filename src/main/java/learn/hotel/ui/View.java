@@ -38,21 +38,21 @@ public class View {
         if (option.getMessage().contains("Reservation")) {
             message += "Reservations.";
             io.println(message);
-            io.println("1: Display by Host last name.");
+            io.println("1: Display by full Host last name.");
             io.println("2: Display by Host email.");
         }
         else if (option.getMessage().contains("Guest")) {
             message += "Guests.";
             io.println(message);
             io.println("1: Display by Guest full name.");
-            io.println("2: Display by Guest last name.");
+            io.println("2: Display by Guest last name prefix.");
             io.println("3: Display by Guest email.");
             max = 3;
         }
         else if (option.getMessage().contains("Host")) {
             message += "Hosts.";
             io.println(message);
-            io.println("1: Display by Host last name.");
+            io.println("1: Display by Host last name prefix.");
             io.println("2: Display by Host email.");
         }
         return io.readInt("",1,max);
@@ -76,6 +76,27 @@ public class View {
         guest.setPhone(io.readRequiredString("Guest Phone Number [(###) #######]: "));
         guest.setState(getState(false));
         return guest;
+    }
+
+    public boolean getReservationSummary(Reservation reservation) {
+        io.displayHeader("Summary");
+        io.printf("Reservation for %s %s:%nStart Date: %s%nEnd Date: %s%nTotal: $%s%n",
+                reservation.getGuest().getFirstName(),
+                reservation.getGuest().getLastName(),
+                reservation.getStartDate(),
+                reservation.getEndDate(),
+                reservation.getTotal());
+        boolean ok = io.readBoolean("Is this okay? [y/n]: ");
+        return ok;
+    }
+
+    public boolean getGuestSummary(Guest guest) {
+        io.displayHeader("Summary");
+        io.printf("Finalizing changes on guest %s %s.%n",
+                guest.getFirstName(),
+                guest.getLastName());
+        boolean ok = io.readBoolean("Is this okay? [y/n]: ");
+        return ok;
     }
 
     public State getState(boolean canBeBlank) {

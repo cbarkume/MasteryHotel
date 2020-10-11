@@ -52,11 +52,21 @@ public class HostService {
             return null;
         }
 
+        String firstLetter = lastName.substring(0,1);
+        firstLetter = firstLetter.toUpperCase();
+        String name = firstLetter;
+
+        if (lastName.length() > 1) {
+            String nameRemainder = lastName.substring(1);
+            nameRemainder = nameRemainder.toLowerCase();
+            name += nameRemainder;
+        }
+
         List<Host> all = findAll();
         List<Host> matches = new ArrayList<>();
 
         for (Host h : all) {
-            if (h.getLastName().startsWith(lastName)) {
+            if (h.getLastName().startsWith(name)) {
                 matches.add(h);
             }
         }
